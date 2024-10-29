@@ -8,6 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.en.html
 Donate link: https://paypal.me/jrumievittar?country.x=ES&locale.x=es_ES
+Plugin URI: https://github.com/jrumievittar/fkn-model-viewer
 
  The inclusion of 3D products on a website is a trend that not only impresses visually, but transforms the online shopping experience.
 
@@ -24,6 +25,17 @@ fuken Model Viewer is a plugin that allows you to insert and interact with 3d ob
 5. You can zoom in on the 3d object using touch.
 
 
+
+== Dependencies ==
+
+This plugin uses the following third-party libraries:
+
+ThreeJS
+
+These libraries are included with the plugin to ensure compatibility and performance. Users do not need to take any additional action to handle these dependencies.
+
+
+
 == Instalation ==
 1. Download the plugin, unzip it and move the unzipped folder to the "wp-content/plugins" directory in your WordPress installation.
 2. In your admin panel, go to Plugins and you'll find FKN Model Viewer in the plugins section.
@@ -31,8 +43,12 @@ fuken Model Viewer is a plugin that allows you to insert and interact with 3d ob
 4. Click on the 'Activate' button to use your new plugin right away.
 5. Done
 
+1. Sube la carpeta 'fkn-model-viewer' al directorio '/wp-content/plugins/'
+2. Activa el plugin a través del menú 'Plugins' en WordPress
+3. El plugin incluye todas las dependencias necesarias, no se requiere configuración adicional.
 
-==How to use==
+
+== How to use==
 1. After installing and activating the fuken Model Viewer plugin on your WordPress website.
 2. Upload a .glb file and click save
 3. Copy the shortcode
@@ -53,6 +69,12 @@ fuken Model Viewer is a plugin that allows you to insert and interact with 3d ob
 
 == Upgrade Notice == 
 This is first version no known notices yet
+
+== Source Code
+The uncompressed source code for the JavaScript and/or CSS files used in this plugin is available at: [fkn-model-viewer
+](https://github.com/jrumievittar/fkn-model-viewer.git). You can review, study, and adapt the code to your needs.
+
+If you have any questions or suggestions about the source code, feel free to contact me.
 
 
 fkn Model Viewer WordPress Plugin, Copyright 2024 J. Rumie Vittar.
