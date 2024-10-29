@@ -9,6 +9,9 @@
  * Author Email: contacto@fuken.es
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * * This plugin uses:
+ * - Draco 3D Data Compression (Apache 2.0 License)
+ * - Basis Universal Supercompressed GPU Texture Codec (Apache 2.0 License)
  */
 
 
@@ -20,12 +23,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Add script -------------------------------
 function fkn_mv_mas_add_script() {
-    wp_enqueue_script( 'model-viewer', plugin_dir_url( __FILE__ ) . 'public/model-viewer-lib.js', array(), null, false );
-    wp_enqueue_script_module('model-viewer', plugin_dir_url( __FILE__ ) . 'public/model-viewer-lib.js');
+    wp_enqueue_script( 'model-viewer', plugin_dir_url( __FILE__ ) . 'public/model-viewer-lib.js', array(), null, true );
 }
-
 add_action('wp_enqueue_scripts', 'fkn_mv_mas_add_script');
-// ---------------------------------------------------
+  
+function fkn_mv_script_loader_tag($tag, $handle, $src) {
+    if ( 'model-viewer' === $handle ) {
+        $tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
+    }
+    return $tag;
+}
+add_filter('script_loader_tag', 'fkn_mv_script_loader_tag', 10, 3);
 
 
 
@@ -90,9 +98,9 @@ function fkn_mv_p_page() {
     echo '<h4>How to Fix: “Sorry, This File Type is Not Allowed for Security Reasons” in WordPress</h4>';
     echo '<ul>';
     echo '<li><strong>Using a WordPress plugin</strong></li>';
-    echo '<ol>';
-    echo '<li>Downloading the free plugin <a href="https://es.wordpress.org/plugins/wp-extra-file-types/" target="_blank">Extra File Types</a></li>';
-    echo '</ol>';
+    //echo '<ol>';
+    //echo '<li>Downloading the free plugin <a href="https://es.wordpress.org/plugins/wp-extra-file-types/" target="_blank">Extra File Types</a></li>';
+    //echo '</ol>';
     echo '</ul>';
 
     // Regard 
@@ -107,54 +115,82 @@ function fkn_mv_p_page() {
 
 // Handle file upload --------------------------
 function fkn_mv_handle_file_upload() {
-    $file = sanitize_file_name($_FILES['model_viewer_file']); //$file = $_FILES['model_viewer_file'];
-
-    // Verificar si hay errores en la carga del archivo
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        wp_die('Error loading file.');
-    }
-
-
+    
     // Verificar nonce
     if (!isset($_POST['model_viewer_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['model_viewer_nonce'])), 'model_viewer_save')) {
         wp_die('Nonce verification failed.');
     }
 
-    // Asegurarse de que el archivo fue subido
+    // Verificar si se ha subido un archivo
     if (!isset($_FILES['model_viewer_file']) || !is_array($_FILES['model_viewer_file'])) {
         wp_die('No file uploaded.');
     }
 
-
-    // Saneamiento de datos del archivo
-    $file = array_map('sanitize_text_field', $file);
-
-
-    // Usar wp_handle_upload para manejar la carga del archivo
-    $upload_overrides = array( 'test_form' => false );
-    $upload_info = wp_handle_upload($file, $upload_overrides);
-
-    if (isset($upload_info['error'])) {
-        wp_die($upload_info['error']);
+    $file = $_FILES['model_viewer_file'];
+    
+    // Verificar si hay errores en la carga del archivo
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        wp_die('Error loading file.');
     }
 
     // Sanear el nombre del archivo
-    $file_name = sanitize_file_name($upload_info['file']);
+    $file_name = sanitize_file_name($file['name']);
 
-    // Validar que se haya seleccionado un archivo
-    if (empty($file_name)) {
-        wp_die('Error: No file selected.');
+    // Asegurarse de que el archivo fue subido
+    // if (!isset($_FILES['model_viewer_file']) || !is_array($_FILES['model_viewer_file'])) {
+    //     wp_die('No file uploaded.');
+    // }
+
+
+    // Saneamiento de datos del archivo
+    // $file = array_map('sanitize_text_field', $file);
+
+
+    // Usar wp_handle_upload para manejar la carga del archivo
+    // $upload_overrides = array( 'test_form' => false );
+    // $upload_info = wp_handle_upload($file, $upload_overrides);
+
+    // if (isset($upload_info['error'])) {
+    //     wp_die($upload_info['error']);
+    // }
+    // Usar wp_handle_upload para manejar la carga del archivo
+    $upload_overrides = array('test_form' => false);
+    $movefile = wp_handle_upload($file, $upload_overrides);
+
+    if (isset($movefile['error'])) {
+        wp_die($movefile['error']);
     }
 
     // Crear la entrada del archivo adjunto en la base de datos de WordPress
     $attachment = array(
+        'post_mime_type' => $movefile['type'],
+        // 'post_title'     => preg_replace('/\.[^.]+$/', '', $file_name),
         'post_title'     => $file_name,
         'post_content'   => '',
-        'post_status'    => 'inherit',
-        'post_mime_type' => $upload_info['type'],
+        'post_status'    => 'inherit'
     );
 
-    $file_id = wp_insert_attachment($attachment, $upload_info['file']);
+    // $attach_id = wp_insert_attachment($attachment, $movefile['file']);
+
+    // return $attach_id;
+
+    // Sanear el nombre del archivo
+    // $file_name = sanitize_file_name($upload_info['file']);
+
+    // Validar que se haya seleccionado un archivo
+    // if (empty($file_name)) {
+    //     wp_die('Error: No file selected.');
+    // }
+
+    // Crear la entrada del archivo adjunto en la base de datos de WordPress
+    // $attachment = array(
+    //     'post_title'     => $file_name,
+    //     'post_content'   => '',
+    //     'post_status'    => 'inherit',
+    //     'post_mime_type' => $upload_info['type'],
+    // );
+
+    $file_id = wp_insert_attachment($attachment, $movefile['file']);
 
     return $file_id;
 }
